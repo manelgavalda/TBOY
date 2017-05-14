@@ -22,6 +22,14 @@ export default class extends Phaser.State {
     this.load.image('loaderBg', './assets/images/loader-bg.png')
     this.load.image('loaderBar', './assets/images/loader-bar.png')
 
+      //load game assets
+      this.load.tilemap('level1', './assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON);
+      this.load.image('tiles', './assets/images/tiles.png');
+      this.load.image('simples_pimples', './assets/images/simples_pimples.png');
+      // this.load.image('browndoor', 'assets/images/browndoor.png');
+      // this.load.image('greencup', 'assets/images/greencup.png');
+      // this.load.image('bluecup', 'assets/images/bluecup.png');
+
   }
 
   render () {
