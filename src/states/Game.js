@@ -25,7 +25,7 @@ export default class extends Phaser.State {
       this.groundLayer = this.map.createLayer('blockedLayer');
 
       //Before you can use the collide function you need to set what tiles can collide
-      this.map.setCollisionBetween(1, 10, true, 'blockedLayer');
+      this.map.setCollisionBetween(1, 100, true, 'blockedLayer');
 
       //Change the world size to match the size of this layer
       this.groundLayer.resizeWorld();
@@ -42,19 +42,19 @@ export default class extends Phaser.State {
     // banner.smoothed = false
     // banner.anchor.setTo(0.5)
     //
-    // this.mushroom = new Mushroom({
-    //   game: this,
-    //   x: this.world.centerX,
-    //   y: this.world.centerY,
-    //   asset: 'mushroom'
-    // })
-    //
-    // this.game.add.existing(this.mushroom)
+    this.mushroom = new Mushroom({
+      game: this,
+      x: this.world.centerX,
+      y: this.world.centerY,
+      asset: 'mushroom'
+    })
+
+    this.game.add.existing(this.mushroom)
   }
 
   render () {
     if (__DEV__) {
-      this.game.debug.spriteInfo(this.mushroom, 32, 32)
+      // this.game.debug.spriteInfo(this.mushroom, 32, 32)
     }
   }
 }
