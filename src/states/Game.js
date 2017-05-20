@@ -20,11 +20,11 @@ export default class extends Phaser.State {
     this.map = this.game.add.tilemap('tilemap');
     this.map.addTilesetImage('tiles', 'tiles');
 
-    this.backgroundLayer = this.map.createLayer('background');
-    // this.groundLayer = this.map.createLayer('ground');
+    this.groundLayer = this.map.createLayer('blockedLayer');
+    this.backgroundLayer = this.map.createLayer('backgroundLayer');
     //
     // //Before you can use the collide function you need to set what tiles can collide
-    this.map.setCollisionBetween(1, 100, true, 'background');
+    this.map.setCollisionBetween(1, 1000, true, 'backgroundLayer');
 
     //Change the world size to match the size of this layer
     this.backgroundLayer.resizeWorld();
@@ -35,7 +35,7 @@ export default class extends Phaser.State {
     this.game.physics.arcade.enable(this.backgroundLayer)
     this.player.body.gravity.y = 0
 
-    this.player.body.setSize(20, 20)
+    this.player.body.setSize(30, 20, 35, 35)
 
     this.cursor = game.input.keyboard.createCursorKeys()
 
@@ -88,12 +88,6 @@ export default class extends Phaser.State {
 
         if(this.cursor.up.isDown) {
             this.player.animations.play('up')
-            this.jumpPlayer()
-        }
-    }
-
-    jumpPlayer () {
-        if (!this.hasJumped) {
             this.player.body.velocity.y = -220
         }
     }
