@@ -26,6 +26,15 @@ export default class extends Phaser.State {
     this.load.tilemap('tilemap', './assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON);
     this.load.image('tiles', './assets/images/tiles.png');
 
+    this.game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    //Change the background colour
+    this.game.stage.backgroundColor = "#a9f0ff";
+    this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+
+    //have the game centered horizontally
+    this.scale.pageAlignHorizontally = true;
+    this.scale.pageAlignVertically = true;
   }
 
   render () {
