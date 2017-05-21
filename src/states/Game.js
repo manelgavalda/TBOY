@@ -43,10 +43,10 @@ export default class extends Phaser.State {
     this.cursor = game.input.keyboard.createCursorKeys()
 
     this.player.frame = 1
-    this.player.animations.add('down', [0, 2], 2, false)
-    this.player.animations.add('left', [3, 4, 5], 5, false)
-    this.player.animations.add('right', [6, 7, 8], 8, false)
-    this.player.animations.add('up', [9, 10, 11], 11, false)
+    this.player.animations.add('down', [2, 1, 0], 10, false)
+    this.player.animations.add('left', [3, 4, 5], 10, false)
+    this.player.animations.add('right', [8, 7, 6], 10, false)
+    this.player.animations.add('up', [9, 10, 11], 10, false)
 
       this.createItems();
       this.createDoors();
