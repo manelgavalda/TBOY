@@ -14,14 +14,17 @@ export default class extends Phaser.State {
   }
 
   create () {
-
+    this.score = 0;
+    this.scoreText;
     this.map = this.game.add.tilemap('tilemap');
     this.map.addTilesetImage('tiles', 'tiles');
 
     this.groundLayer = this.map.createLayer('blockedLayer');
     this.backgroundLayer = this.map.createLayer('backgroundLayer');
     // this.objectsLayer = this.map.createLayer('objectsLayer');
-    //
+    this.scoreText = this.game.add.text(30, 0, 'Score: '+ this.score, { fontSize: '32px', fill: '#000' });
+
+      //
     // //Before you can use the collide function you need to set what tiles can collide
     this.map.setCollisionBetween(1, 1000, true, 'backgroundLayer');
 
@@ -40,10 +43,10 @@ export default class extends Phaser.State {
     this.cursor = game.input.keyboard.createCursorKeys()
 
     this.player.frame = 1
-    this.player.animations.add('down', [0, 2], 2, true)
-    this.player.animations.add('left', [3, 4, 5], 5, true)
-    this.player.animations.add('right', [6, 7, 8], 8, true)
-    this.player.animations.add('up', [9, 10, 11], 11, true)
+    this.player.animations.add('down', [0, 2], 2, false)
+    this.player.animations.add('left', [3, 4, 5], 5, false)
+    this.player.animations.add('right', [6, 7, 8], 8, false)
+    this.player.animations.add('up', [9, 10, 11], 11, false)
 
       this.createItems();
       this.createDoors();
@@ -95,7 +98,9 @@ export default class extends Phaser.State {
     }
 
     collect(player, collectable) {
-        console.log('yummy!');
+        this.score += 10;
+        this.scoreText.text = 'Score: ' + this.score;
+        console.log('coleccionada');
 
         //remove sprite
         collectable.destroy();
