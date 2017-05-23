@@ -11,7 +11,7 @@ export default class extends Phaser.State {
       this.game.load.spritesheet('woodchest', './assets/images/woodenchest.png')
       this.game.load.spritesheet('goldchest', './assets/images/goldenchest.png')
       this.game.load.spritesheet('diamondchest', './assets/images/diamondchest.png')
-      this.game.load.spritesheet('enemy', './assets/images/enemies.png',100, 250, 200)
+      this.game.load.spritesheet('enemy', './assets/images/enemies.png',100, 150, 200)
   }
 
   create () {
@@ -35,8 +35,6 @@ export default class extends Phaser.State {
 
     // this.player = this.game.add.sprite(50, 800, 'player')
       this.spawnPlayer()
-    this.enemy = this.game.add.sprite(500, 500, 'enemy')
-    this.game.physics.arcade.enable(this.enemy)
 
 
       this.game.physics.arcade.enable(this.player)
@@ -120,6 +118,7 @@ export default class extends Phaser.State {
       this.game.physics.arcade.overlap(this.player, this.doors, this.enterDoor, null, this);
       this.game.physics.arcade.overlap(this.player, this.enemy, this.dead, null, this)
 
+      this.enemy.body.velocity.y = -220
       this.inputs()
       // if (this.player.body) {
       //     if (this.player.body.touching.down) {
@@ -175,6 +174,8 @@ export default class extends Phaser.State {
     }
 
     spawnPlayer() {
+        this.enemy = this.game.add.sprite(500, 500, 'enemy')
+        this.game.physics.arcade.enable(this.enemy)
         if(this.playerIsDead) {
             // this.player.x= 380
             // this.player.y= 101
