@@ -11,6 +11,7 @@ export default class extends Phaser.State {
       this.game.load.spritesheet('woodchest', './assets/images/woodenchest.png')
       this.game.load.spritesheet('goldchest', './assets/images/goldenchest.png')
       this.game.load.spritesheet('diamondchest', './assets/images/diamondchest.png')
+      this.game.load.spritesheet('enemy', './assets/images/enemies.png',100, 250, 200)
   }
 
   create () {
@@ -32,9 +33,13 @@ export default class extends Phaser.State {
     this.backgroundLayer.resizeWorld();
 
 
-    this.player = this.game.add.sprite(50, 800, 'player')
+    // this.player = this.game.add.sprite(50, 800, 'player')
+      this.spawnPlayer()
+    this.enemy = this.game.add.sprite(500, 500, 'enemy')
+    this.game.physics.arcade.enable(this.enemy)
 
-    this.game.physics.arcade.enable(this.player)
+
+      this.game.physics.arcade.enable(this.player)
     this.game.physics.arcade.enable(this.backgroundLayer)
     this.player.body.gravity.y = 0
 
@@ -113,7 +118,7 @@ export default class extends Phaser.State {
       this.game.physics.arcade.collide(this.player, this.backgroundLayer)
       this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
       this.game.physics.arcade.overlap(this.player, this.doors, this.enterDoor, null, this);
-
+      this.game.physics.arcade.overlap(this.player, this.enemy, this.dead, null, this)
 
       this.inputs()
       // if (this.player.body) {
@@ -152,6 +157,31 @@ export default class extends Phaser.State {
         if(this.cursor.up.isDown) {
             this.player.animations.play('up')
             this.player.body.velocity.y = -220
+        }
+    }
+
+    dead() {
+        this.playerIsDead = true
+        // this.deadSound.play()
+        this.game.camera.shake(0.05, 200)
+
+        if (this.playerIsDead) {
+            // this.explosion.x = this.player.x
+            // this.explosion.y = this.player.y + 10
+            // this.explosion.start(true, 300, null, 20)
+        }
+        //tornar a colocar usuari en posició inicial
+        this.spawnPlayer()
+    }
+
+    spawnPlayer() {
+        if(this.playerIsDead) {
+            // this.player.x= 380
+            // this.player.y= 101
+            this.player.reset(380, 101);
+            this.playerIsDead=false;
+        } else {
+            this.player = this.game.add.sprite(380,101,'player')
         }
     }
 
