@@ -8,9 +8,9 @@ export default class extends Phaser.State {
       this.game.load.spritesheet('player', './assets/images/player.png', 96, 64)
       this.game.load.spritesheet('startdoor', './assets/images/tiles.png', 32, 32, 100, 255)
       this.game.load.spritesheet('enddoor', './assets/images/tiles.png', 32, 32, 100, 255)
-      this.game.load.spritesheet('woodchest', './assets/images/tiles.png', 32, 32, 100, 32, 32, 10)
-      this.game.load.spritesheet('goldchest', './assets/images/tiles.png', 32, 32, 100, 32, 32, 10)
-      this.game.load.spritesheet('diamondchest', './assets/images/tiles.png', 32, 32, 100, 32, 32, 10)
+      this.game.load.spritesheet('woodchest', './assets/images/woodenchest.png')
+      this.game.load.spritesheet('goldchest', './assets/images/goldenchest.png')
+      this.game.load.spritesheet('diamondchest', './assets/images/diamondchest.png')
   }
 
   create () {
