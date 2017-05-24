@@ -16,16 +16,26 @@ export default class extends Phaser.State {
 
   create () {
     this.score = 0;
-    this.scoreText;
+    this.lives;
+
+    //  Lives
+    this.lives = this.game.add.group();
+
+    //  Text
+
+
     this.map = this.game.add.tilemap('tilemap');
     this.map.addTilesetImage('tiles', 'tiles');
 
     this.groundLayer = this.map.createLayer('blockedLayer');
     this.backgroundLayer = this.map.createLayer('backgroundLayer');
     // this.objectsLayer = this.map.createLayer('objectsLayer');
-    this.scoreText = this.game.add.text(30, 0, 'Score: '+ this.score, { fontSize: '32px', fill: '#000' });
+    this.game.add.text(this.game.world.width - 220, 0, 'Lives : ', { fontSize: '32px', fill: '#000'  });
+    this.scoreText = this.game.add.text(this.game.world.width - 900, 0, 'Score: '+ this.score, { fontSize: '32px', fill: '#000' });
+    this.stateText = this.game.add.text(this.game.world.centerX,this.game.world.centerY,' Polla ', { font: '84px Arial', fill: '#fff' });
+    this.stateText.anchor.setTo(0.5, 0.5);
+    this.stateText.visible = false;
 
-      //
     // //Before you can use the collide function you need to set what tiles can collide
     this.map.setCollisionBetween(1, 1000, true, 'backgroundLayer');
 
@@ -34,8 +44,10 @@ export default class extends Phaser.State {
 
 
     // this.player = this.game.add.sprite(50, 800, 'player')
-      this.spawnPlayer()
+    this.spawnPlayer()
 
+    this.enemy = this.game.add.sprite(500, 500, 'enemy')
+    this.game.physics.arcade.enable(this.enemy)
 
       this.game.physics.arcade.enable(this.player)
     this.game.physics.arcade.enable(this.backgroundLayer)
@@ -43,7 +55,7 @@ export default class extends Phaser.State {
 
     this.player.body.setSize(30, 20, 35, 35)
 
-    this.cursor = game.input.keyboard.createCursorKeys()
+    this.cursor = this.game.input.keyboard.createCursorKeys()
 
     this.player.frame = 1
     this.player.animations.add('down', [2, 1, 0], 10, false)
@@ -51,8 +63,21 @@ export default class extends Phaser.State {
     this.player.animations.add('right', [8, 7, 6], 10, false)
     this.player.animations.add('up', [9, 10, 11], 10, false)
 
-      this.createItems();
-      this.createDoors();
+    this.createItems();
+    this.createDoors();
+
+
+      this.game.camera.follow(this.player)
+      this.game.camera.setSize(800, 500)
+
+    for (var i = 0; i < 3; i++)
+    {
+      var player = this.lives.create(this.game.world.width - 150 + (30 * i), -20, 'player');
+      // player.anchor.setTo(0.5, 0.5);
+      // ship.angle = 90;
+      player.alpha = 0.6;
+    }
+
 
   }
     createItems() {
@@ -112,13 +137,15 @@ export default class extends Phaser.State {
     enterDoor(player, door) {
         console.log('entering door that will take you to '+door.targetTilemap+' on x:'+door.targetX+' and y:'+door.targetY);
     }
+
+
   update(){
       this.game.physics.arcade.collide(this.player, this.backgroundLayer)
       this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
       this.game.physics.arcade.overlap(this.player, this.doors, this.enterDoor, null, this);
       this.game.physics.arcade.overlap(this.player, this.enemy, this.dead, null, this)
 
-      this.enemy.body.velocity.y = -220
+      this.enemy.body.velocity.y = -20
       this.inputs()
       // if (this.player.body) {
       //     if (this.player.body.touching.down) {
@@ -160,9 +187,18 @@ export default class extends Phaser.State {
     }
 
     dead() {
+        this.enemy.kill()
+        var live = this.lives.getFirstAlive();
+
+        if (live)
+        {
+            live.kill();
+        }
+
         this.playerIsDead = true
         // this.deadSound.play()
         this.game.camera.shake(0.05, 200)
+        console.log(this.lives)
 
         if (this.playerIsDead) {
             // this.explosion.x = this.player.x
@@ -171,15 +207,42 @@ export default class extends Phaser.State {
         }
         //tornar a colocar usuari en posició inicial
         this.spawnPlayer()
+
+        if (this.lives.countLiving() < 1)
+        {
+            this.enemy.kill();
+            this.player.kill();
+
+            this.stateText.text=" GAME OVER \n Click to restart";
+            this.stateText.visible = true;
+
+            //the "click to restart" handler
+            this.game.input.onTap.addOnce(this.restart,this);
+        }
+    }
+
+    restart () {
+        this.stateText.visible = false;
+        //  A new level starts
+        this.enemy.reset(100, 100);
+
+        //resets the life count
+        this.lives.callAll('revive');
+        //  And brings the aliens back from the dead :)
+        // aliens.removeAll();
+        // createAliens();
+
+        //revives the player
+        this.player.revive();
+        //hides the text
     }
 
     spawnPlayer() {
-        this.enemy = this.game.add.sprite(500, 500, 'enemy')
-        this.game.physics.arcade.enable(this.enemy)
         if(this.playerIsDead) {
             // this.player.x= 380
             // this.player.y= 101
             this.player.reset(380, 101);
+            this.enemy.reset(100, 100);
             this.playerIsDead=false;
         } else {
             this.player = this.game.add.sprite(380,101,'player')
