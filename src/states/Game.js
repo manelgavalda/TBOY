@@ -2,6 +2,32 @@
 import Phaser from 'phaser'
 import Player from '../sprites/Player'
 
+//
+// function Enemy(game, x, y, target) {
+//     Phaser.Sprite.call(this, game, x, y, 'player');
+//
+//     // Save the target that this Follower will follow
+//     // The target is any object with x and y properties
+//     this.enemy = target;
+//
+//     // Set the pivot point for this sprite to the center
+//     this.anchor.setTo(0.5, 0.5);
+//
+//     // Enable physics on this object
+//     this.game.physics.enable(this, Phaser.Physics.ARCADE);
+//
+//     // Each Follower will record its position history in
+//     // an array of point objects (objects with x,y members)
+//     // This will be used to make each Follower follow the
+//     // same track as its target
+//     this.history = [];
+//     this.HISTORY_LENGTH = 5;
+//
+//     // Define constants that affect motion
+//     this.MAX_SPEED = 250; // pixels/second
+//     this.MIN_DISTANCE = 32; // pixels
+// };
+
 export default class extends Phaser.State {
   init () {}
   preload () {
@@ -66,6 +92,7 @@ export default class extends Phaser.State {
     this.createItems();
     this.createDoors();
 
+    this.y=0
 
       this.game.camera.follow(this.player)
       this.game.camera.setSize(800, 500)
@@ -138,14 +165,30 @@ export default class extends Phaser.State {
         console.log('entering door that will take you to '+door.targetTilemap+' on x:'+door.targetX+' and y:'+door.targetY);
     }
 
+    enemyFollow() {
+        this.enemy.body.velocity.y = this.y-=1
+        // var NUMBER_OF_FOLLOWERS = 10;
+        // for(var i = 0; i < NUMBER_OF_FOLLOWERS; i++) {
+        //     var f = this.game.add.existing(
+        //         new Enemy(this.game,
+        //             this.game.width/2 + i * 32,
+        //             this.game.height/2,
+        //             f || this.game.input /* the previous follower or pointer */
+        //         )
+        //     );
+        // }
+    }
 
   update(){
+
+
+      this.enemyFollow()
+
       this.game.physics.arcade.collide(this.player, this.backgroundLayer)
       this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
       this.game.physics.arcade.overlap(this.player, this.doors, this.enterDoor, null, this);
       this.game.physics.arcade.overlap(this.player, this.enemy, this.dead, null, this)
 
-      this.enemy.body.velocity.y = -20
       this.inputs()
       // if (this.player.body) {
       //     if (this.player.body.touching.down) {
@@ -222,7 +265,8 @@ export default class extends Phaser.State {
     }
 
     restart () {
-        this.game.state.start('Boot')
+        this.game.state.start('Boot' +
+            '')
         this.stateText.visible = false;
         //  A new level starts
         this.enemy.reset(100, 100);
