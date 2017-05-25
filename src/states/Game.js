@@ -222,6 +222,7 @@ export default class extends Phaser.State {
     }
 
     restart () {
+        this.game.state.start('Boot')
         this.stateText.visible = false;
         //  A new level starts
         this.enemy.reset(100, 100);
