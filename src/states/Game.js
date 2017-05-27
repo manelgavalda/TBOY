@@ -38,18 +38,18 @@ export default class extends Phaser.State {
       this.game.load.spritesheet('goldchest', './assets/images/goldenchest.png')
       this.game.load.spritesheet('diamondchest', './assets/images/diamondchest.png')
       this.game.load.spritesheet('enemy', './assets/images/enemies.png',100, 150, 200)
+      this.game.load.image('bullet', 'assets/sprites/purple_ball.png');
   }
 
   create () {
-    this.score = 0;
-    this.lives;
+      this.score = 0;
+      this.fireRate = 100
+      this.nextFire = 0
 
     //  Lives
     this.lives = this.game.add.group();
 
-    //  Text
-
-
+      //  Text
     this.map = this.game.add.tilemap('tilemap');
     this.map.addTilesetImage('tiles', 'tiles');
 
@@ -77,9 +77,6 @@ export default class extends Phaser.State {
 
       this.game.physics.arcade.enable(this.player)
     this.game.physics.arcade.enable(this.backgroundLayer)
-    this.player.body.gravity.y = 0
-
-    this.player.body.setSize(30, 20, 35, 35)
 
     this.cursor = this.game.input.keyboard.createCursorKeys()
 
@@ -89,6 +86,22 @@ export default class extends Phaser.State {
     this.player.animations.add('right', [8, 7, 6], 10, false)
     this.player.animations.add('up', [9, 10, 11], 10, false)
 
+
+
+    //Bullets
+    this.bullets = this.game.add.group();
+    this.bullets.enableBody = true;
+    this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
+
+    this.bullets.createMultiple(50, 'bullet');
+    this.bullets.setAll('checkWorldBounds', true);
+    this.bullets.setAll('outOfBoundsKill', true);
+
+      this.player.body.gravity.y = 0
+
+
+      this.player.body.allowRotation = false;
+      this.player.body.setSize(30, 20, 35, 35)
     this.createItems();
     this.createDoors();
 
@@ -179,8 +192,26 @@ export default class extends Phaser.State {
         // }
     }
 
-  update(){
+    fire() {
+        if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0)
+        {
+            this.nextFire = this.game.time.now + this.fireRate;
 
+            var bullet = this.bullets.getFirstDead();
+
+            bullet.reset(this.player.x +35, this.player.y + 20 );
+
+            this.game.physics.arcade.moveToPointer(bullet, 300);
+        }
+
+    }
+  update(){
+    // this.player.rotation = this.game.physics.arcade.angleToPointer(this.player);
+
+    if (this.game.input.activePointer.isDown)
+    {
+      this.fire();
+    }
 
       this.enemyFollow()
 
