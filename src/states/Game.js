@@ -42,9 +42,9 @@ export default class extends Phaser.State {
   }
 
   create () {
-      this.score = 0;
-      this.fireRate = 100
-      this.nextFire = 0
+    this.score = 0;
+    this.fireRate = 300
+    this.nextFire = 0
 
     //  Lives
     this.lives = this.game.add.group();
@@ -97,18 +97,18 @@ export default class extends Phaser.State {
     this.bullets.setAll('checkWorldBounds', true);
     this.bullets.setAll('outOfBoundsKill', true);
 
-      this.player.body.gravity.y = 0
+    this.player.body.gravity.y = 0
 
 
-      this.player.body.allowRotation = false;
-      this.player.body.setSize(30, 20, 35, 35)
+    this.player.body.allowRotation = false;
+    this.player.body.setSize(30, 20, 35, 35)
     this.createItems();
     this.createDoors();
 
     this.y=0
 
-      this.game.camera.follow(this.player)
-      this.game.camera.setSize(800, 500)
+    this.game.camera.follow(this.player)
+    this.game.camera.setSize(800, 500)
 
     for (var i = 0; i < 3; i++)
     {
@@ -218,7 +218,7 @@ export default class extends Phaser.State {
       this.game.physics.arcade.collide(this.player, this.backgroundLayer)
       this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
       this.game.physics.arcade.overlap(this.player, this.doors, this.enterDoor, null, this);
-      this.game.physics.arcade.overlap(this.player, this.enemy, this.dead, null, this)
+      this.game.physics.arcade.overlap(this.bullets, this.enemy, this.dead, null, this)
 
       this.inputs()
       // if (this.player.body) {
