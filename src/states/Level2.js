@@ -31,14 +31,14 @@ import Player from '../sprites/Player'
 export default class extends Phaser.State {
   init () {}
   preload () {
-      this.game.load.spritesheet('player', './assets/images/player.png', 96, 64)
-      this.game.load.spritesheet('startdoor', './assets/images/tiles.png', 32, 32, 100, 255)
-      this.game.load.spritesheet('enddoor', './assets/images/tiles.png', 32, 32, 100, 255)
-      this.game.load.spritesheet('woodchest', './assets/images/woodenchest.png')
-      this.game.load.spritesheet('goldchest', './assets/images/goldenchest.png')
-      this.game.load.spritesheet('diamondchest', './assets/images/diamondchest.png')
-      this.game.load.spritesheet('enemy', './assets/images/enemies.png',100, 150, 200)
-      this.game.load.image('bullet', 'assets/sprites/purple_ball.png');
+      // this.game.load.spritesheet('player', './assets/images/player.png', 96, 64)
+      // this.game.load.spritesheet('startdoor', './assets/images/tiles.png', 32, 32, 100, 255)
+      // this.game.load.spritesheet('enddoor', './assets/images/tiles.png', 32, 32, 100, 255)
+      // this.game.load.spritesheet('woodchest', './assets/images/woodenchest.png')
+      // this.game.load.spritesheet('goldchest', './assets/images/goldenchest.png')
+      // this.game.load.spritesheet('diamondchest', './assets/images/diamondchest.png')
+      // this.game.load.spritesheet('enemy', './assets/images/enemies.png',100, 150, 200)
+      // this.game.load.image('bullet', 'assets/sprites/purple_ball.png');
   }
 
   create () {
@@ -50,7 +50,7 @@ export default class extends Phaser.State {
     this.lives = this.game.add.group();
 
       //  Text
-    this.map = this.game.add.tilemap('level1');
+    this.map = this.game.add.tilemap('level2');
     this.map.addTilesetImage('tiles', 'tiles');
 
     this.groundLayer = this.map.createLayer('blockedLayer');
@@ -176,7 +176,7 @@ export default class extends Phaser.State {
 
     enterDoor(player, door) {
         console.log('entering door that will take you to '+door.targetTilemap+' on x:'+door.targetX+' and y:'+door.targetY);
-        this.state.start('Level2');
+        this.state.start("End");
     }
 
     enemyFollow() {
