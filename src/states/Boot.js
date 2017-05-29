@@ -20,8 +20,6 @@ export default class extends Phaser.State {
     let text = this.add.text(this.world.centerX, this.world.centerY, 'PLAY', { font: '50px Arial', fill: '#dddddd', align: 'center' })
     text.anchor.setTo(0.5, 0.5)
 
-
-
     this.load.image("gametitle", "./assets/sprites/gametitle.png");
     this.load.image("gridedition", "./assets/sprites/gridedition.png");
     this.load.image("playbutton", "./assets/sprites/playbutton.png");
@@ -31,7 +29,16 @@ export default class extends Phaser.State {
     this.load.image('loaderBg', './assets/images/loader-bg.png')
     this.load.image('loaderBar', './assets/images/loader-bar.png')
 
-    // this.load.spritesheet('player', './assets/images/player.png', 38, 48);
+    this.load.spritesheet('player', './assets/images/player.png', 96, 64)
+    this.load.spritesheet('startdoor', './assets/images/tiles.png', 32, 32, 100, 255)
+    this.load.spritesheet('enddoor', './assets/images/tiles.png', 32, 32, 100, 255)
+    this.load.spritesheet('enemy', './assets/images/enemies.png', 100, 150, 200)
+
+    this.load.image('woodchest', './assets/images/woodenchest.png')
+    this.load.image('goldchest', './assets/images/goldenchest.png')
+    this.load.image('diamondchest', './assets/images/diamondchest.png')
+    this.load.image('bullet', 'assets/sprites/purple_ball.png');
+
     this.load.tilemap('level1', './assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON);
     this.load.tilemap('level2', './assets/tilemaps/level2.json', null, Phaser.Tilemap.TILED_JSON);
     this.load.tilemap('level2', './assets/tilemaps/level2.json', null, Phaser.Tilemap.TILED_JSON);
