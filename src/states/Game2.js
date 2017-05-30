@@ -10,12 +10,8 @@ export default class extends Phaser.State {
     }
 
     create() {
-        this.score = 0;
         this.fireRate = 300
         this.nextFire = 0
-
-        //  Lives
-        this.lives = this.game.add.group();
 
         //  Text
         this.map = this.game.add.tilemap('level2');
@@ -23,18 +19,8 @@ export default class extends Phaser.State {
 
         this.groundLayer = this.map.createLayer('blockedLayer');
         this.backgroundLayer = this.map.createLayer('backgroundLayer');
-        // this.objectsLayer = this.map.createLayer('objectsLayer');
-        this.game.add.text(this.game.world.width - 220, 0, 'Lives : ', {fontSize: '32px', fill: '#000'});
-        this.scoreText = this.game.add.text(this.game.world.width - 900, 0, 'Score: ' + this.score, {
-            fontSize: '32px',
-            fill: '#000'
-        });
-        this.stateText = this.game.add.text(this.game.world.centerX, this.game.world.centerY, ' Polla ', {
-            font: '84px Arial',
-            fill: '#fff'
-        });
-        this.stateText.anchor.setTo(0.5, 0.5);
-        this.stateText.visible = false;
+
+        this.initializeGui()
 
         // //Before you can use the collide function you need to set what tiles can collide
         this.map.setCollisionBetween(1, 1000, true, 'backgroundLayer');
@@ -44,7 +30,7 @@ export default class extends Phaser.State {
 
         this.spawnPlayer()
 
-        this.enemy = this.game.add.sprite(500, 500, 'enemy')
+        this.spawnEnemy()
 
         this.game.physics.arcade.enable(this.enemy)
         this.game.physics.arcade.enable(this.player)
@@ -58,33 +44,94 @@ export default class extends Phaser.State {
         this.player.animations.add('right', [8, 7, 6], 10, false)
         this.player.animations.add('up', [9, 10, 11], 10, false)
 
-        //Bullets
-        this.bullets = this.game.add.group();
-        this.bullets.enableBody = true;
-        this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
-        this.bullets.createMultiple(50, 'bullet');
-        this.bullets.setAll('checkWorldBounds', true);
-        this.bullets.setAll('outOfBoundsKill', true);
-
-        this.player.body.gravity.y = 0
+        this.player.body.gravity.y = 0;
         this.player.body.allowRotation = false;
-        this.player.body.setSize(30, 20, 35, 35)
+        this.player.body.setSize(30, 20, 35, 35);
 
         this.createItems();
         this.createDoors();
         this.createBalls();
+        this.createBullets();
 
-        this.game.camera.follow(this.player)
-        this.game.camera.setSize(800, 500)
+        this.game.camera.follow(this.player);
+        this.game.camera.setSize(800, 500);
+        this.createMissile()
 
-        for (var i = 0; i < 3; i++) {
-            var player = this.lives.create(this.game.world.width - 150 + (30 * i), -20, 'player');
-            // player.anchor.setTo(0.5, 0.5);
-            // ship.angle = 90;
-            player.alpha = 0.6;
+    }
+
+    update() {
+        this.balls.forEach(this.game.physics.arcade.moveToPointer, this.game.physics.arcade, false, 200);
+        // this.player.rotation = this.game.physics.arcade.angleToPointer(this.player);
+
+        if (this.game.input.activePointer.isDown) {
+            this.fire();
         }
 
+        this.enemyFollow()
 
+        this.game.physics.arcade.collide(this.player, this.backgroundLayer)
+        this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
+        this.game.physics.arcade.overlap(this.player, this.doors, this.enterDoor, null, this);
+        this.game.physics.arcade.overlap(this.player, this.enemy, this.dead, null, this);
+        this.game.physics.arcade.overlap(this.player, [this.rocket1,this.rocket2, this.rocket3, this.rocket4], this.dead, null, this);
+        this.game.physics.arcade.overlap(this.bullets, this.enemy, this.killEnemy, null, this)
+        this.game.physics.arcade.overlap(this.balls, this.enemy, this.killEnemy, null, this)
+
+        this.inputs()
+
+
+    }
+
+    createMissile(){
+        this.rocket1 = this.game.add.existing(
+            new Missile(this.game, this.game.width/2, this.game.height - 16, this.player)
+        );
+
+        this.rocket2 = this.game.add.existing(
+            new Missile(this.game, this.game.width/2 -200, this.game.height -200, this.player)
+        );
+
+        this.rocket2 = this.game.add.existing(
+            new Missile(this.game, this.game.width/2 -300, this.game.height -150, this.player)
+        );
+
+        this.rocket3 = this.game.add.existing(
+            new Missile(this.game, this.game.width/2 -500, this.game.height -250, this.player)
+        );
+
+        this.rocket4 = this.game.add.existing(
+            new Missile(this.game, this.game.width/2 -800, this.game.height -200, this.player)
+        );
+    }
+    createBullets(){
+        this.bullets = this.game.add.group();
+        this.bullets.enableBody = true;
+        this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
+        this.bullets.createMultiple(10, 'bullet');
+        this.bullets.setAll('checkWorldBounds', true);
+        this.bullets.setAll('outOfBoundsKill', true);
+    }
+
+    initializeGui(){
+        this.livesText = this.game.add.text(16, 16, 'Lives : ', {fontSize: '32px', fill: '#ffffff'});
+        this.scoreText = this.game.add.text(this.game.world.width - 150, 16, 'Score: 0', { fontSize: '32px', fill: '#ffffff' });
+
+        this.livesText.fixedToCamera = true;
+        this.scoreText.fixedToCamera = true;
+
+        this.stateText = this.game.add.text(this.game.world.centerX, this.game.world.centerY, ' ', { font: '84px Arial', fill: '#fff' });
+
+        this.stateText.anchor.setTo(0.5, 0.5);
+        this.stateText.visible = false;
+
+        this.lives = this.game.add.group();
+        for (var i = 0; i < window.game.global.lives; i++) {
+            this.playerLives = this.lives.create(85 + (30 * i), -10, 'player');
+            // player.anchor.setTo(0.5, 0.5);
+            // ship.angle = 90;
+            this.playerLives.alpha = 0.8;
+            this.playerLives.fixedToCamera = true;
+        }
     }
 
     createItems() {
@@ -134,8 +181,8 @@ export default class extends Phaser.State {
     }
 
     collect(player, collectable) {
-        this.score += 10;
-        this.scoreText.text = 'Score: ' + this.score;
+        window.game.global.score  += 10;
+        this.scoreText.text = 'Score: ' + window.game.global.score;
         console.log('coleccionada');
 
         //remove sprite
@@ -178,59 +225,43 @@ export default class extends Phaser.State {
         this.balls = this.game.add.group();
         this.balls.enableBody = true;
 
-        for (var i = 0; i < 50; i++) {
+        for (var i = 0; i < 3; i++) {
             var ball = this.balls.create(this.game.world.randomX, this.game.world.randomY, 'bullet');
         }
 
     }
 
-    update() {
-        this.balls.forEach(this.game.physics.arcade.moveToPointer, this.game.physics.arcade, false, 200);
-        // this.player.rotation = this.game.physics.arcade.angleToPointer(this.player);
-
-        if (this.game.input.activePointer.isDown) {
-            this.fire();
-        }
-
-        this.enemyFollow()
-
-        this.game.physics.arcade.collide(this.player, this.backgroundLayer)
-        this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
-        this.game.physics.arcade.overlap(this.player, this.doors, this.enterDoor, null, this);
-        this.game.physics.arcade.overlap(this.player, this.enemy, this.dead, null, this);
-        this.game.physics.arcade.overlap(this.bullets, this.enemy, this.killEnemy, null, this)
-        this.game.physics.arcade.overlap(this.balls, this.enemy, this.killEnemy, null, this)
-
-        this.inputs()
-    }
-
     inputs() {
-        if (this.cursor.down.isDown) {
-            this.player.animations.play('down')
-            this.player.body.velocity.y = +220
-        } else {
-            this.player.body.velocity.y = 0
-        }
+        this.player.body.velocity.set(0);
 
-        if (this.cursor.left.isDown) {
-            this.player.animations.play('left')
-            this.player.body.velocity.x = -220
-        } else {
-            this.player.body.velocity.x = 0
+        if (this.cursor.left.isDown)
+        {
+            this.player.body.velocity.x = -220;
+            this.player.play('left');
         }
-
-        if (this.cursor.right.isDown) {
-            this.player.animations.play('right')
-            this.player.body.velocity.x = +220
+        else if (this.cursor.right.isDown)
+        {
+            this.player.body.velocity.x = 220;
+            this.player.play('right');
         }
-
-        if (this.cursor.up.isDown) {
-            this.player.animations.play('up')
-            this.player.body.velocity.y = -220
+        else if (this.cursor.up.isDown)
+        {
+            this.player.body.velocity.y = -220;
+            this.player.play('up');
+        }
+        else if (this.cursor.down.isDown)
+        {
+            this.player.body.velocity.y = 220;
+            this.player.play('down');
+        }
+        else
+        {
+            this.player.animations.stop();
         }
     }
 
     dead() {
+        window.game.global.lives -= 1
         this.enemy.kill()
         var live = this.lives.getFirstAlive();
 
@@ -241,7 +272,6 @@ export default class extends Phaser.State {
         this.playerIsDead = true
         // this.deadSound.play()
         this.game.camera.shake(0.05, 200)
-        console.log(this.lives)
 
         if (this.playerIsDead) {
             // this.explosion.x = this.player.x
@@ -266,7 +296,7 @@ export default class extends Phaser.State {
     killEnemy(){
         this.enemy.kill()
         this.enemy.reset(500, 500);
-        this.game.camera.shake(0.05, 200)
+        this.game.camera.shake(0.02, 100)
     }
 
     restart() {
@@ -287,6 +317,18 @@ export default class extends Phaser.State {
         //hides the text
     }
 
+    spawnEnemy() {
+        this.enemy = this.game.add.sprite(50, 50, 'enemy')
+        this.game.add.tween(this.enemy)
+            .to({ x: this.game.width - 150, y: 50 }, 2000, Phaser.Easing.Sinusoidal.InOut)
+            .to({ x: this.game.width - 150, y: this.game.height - 50 },
+                1200, Phaser.Easing.Sinusoidal.InOut)
+            .to({ x: 150, y: this.game.height - 150 }, 2000, Phaser.Easing.Sinusoidal.InOut)
+            .to({ x: 50, y: 50 }, 1200, Phaser.Easing.Sinusoidal.InOut)
+            .start()
+            .loop();
+    }
+
     spawnPlayer() {
         if (this.playerIsDead) {
             // this.player.x= 380
@@ -299,9 +341,69 @@ export default class extends Phaser.State {
         }
     }
 
+
+
     render() {
         if (__DEV__) {
             // this.game.debug.spriteInfo(this.mushroom, 32, 32)
         }
     }
+
 }
+
+
+var Missile = function(game, x, y, player) {
+    this.player=player
+    Phaser.Sprite.call(this, game, x, y, 'rocket');
+
+    // Set the pivot point for this sprite to the center
+    this.anchor.setTo(0.5, 0.5);
+
+    // Enable physics on the missile
+    game.physics.enable(this, Phaser.Physics.ARCADE);
+
+    // Define constants that affect motion
+    this.SPEED = 250; // missile speed pixels/second
+    this.TURN_RATE = 5; // turn rate in degrees/frame
+};
+
+Missile.prototype = Object.create(Phaser.Sprite.prototype);
+
+Missile.prototype.constructor = Missile;
+
+Missile.prototype.update = function() {
+    // Calculate the angle from the missile to the mouse cursor game.input.x
+    // and game.input.y are the mouse position; substitute with whatever
+    // target coordinates you need.
+    var targetAngle = this.game.math.angleBetween(
+        this.x, this.y,
+        this.player.y, this.player.x
+    );
+
+    // Gradually (this.TURN_RATE) aim the missile towards the target angle
+    if (this.rotation !== targetAngle) {
+        // Calculate difference between the current angle and targetAngle
+        var delta = targetAngle - this.rotation;
+
+        // Keep it in range from -180 to 180 to make the most efficient turns.
+        if (delta > Math.PI) delta -= Math.PI * 2;
+        if (delta < -Math.PI) delta += Math.PI * 2;
+
+        if (delta > 0) {
+            // Turn clockwise
+            this.angle += this.TURN_RATE;
+        } else {
+            // Turn counter-clockwise
+            this.angle -= this.TURN_RATE;
+        }
+
+        // Just set angle to target angle if they are close
+        if (Math.abs(delta) < this.game.math.degToRad(this.TURN_RATE)) {
+            this.rotation = targetAngle;
+        }
+    }
+
+    // Calculate velocity vector based on this.rotation and this.SPEED
+    this.body.velocity.x = Math.cos(this.rotation) * this.SPEED;
+    this.body.velocity.y = Math.sin(this.rotation) * this.SPEED;
+};
