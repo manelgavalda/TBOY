@@ -12,6 +12,10 @@ export default class extends Phaser.State {
     }
 
     create() {
+        this.music = this.game.add.audio('bso');
+        this.music.loop = true;
+        this.music.play();
+
         let text = this.add.text(this.world.centerX, this.world.centerY, 'PLAY', {
             font: '50px Arial',
             fill: '#dddddd',

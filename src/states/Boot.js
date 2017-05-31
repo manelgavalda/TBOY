@@ -14,7 +14,11 @@ export default class extends Phaser.State {
         families: ['Bangers']
       },
       active: this.fontsLoaded
+
     })
+
+    this.load.audio('bso', ['assets/sounds/bso.mp3']);
+
     this.load.image("gametitle", "./assets/sprites/gametitle.png");
     this.load.image("gridedition", "./assets/sprites/gridedition.png");
     this.load.image("playbutton", "./assets/sprites/playbutton.png");
@@ -49,6 +53,7 @@ export default class extends Phaser.State {
     //have the game centered horizontally
     this.scale.pageAlignHorizontally = true;
     this.scale.pageAlignVertically = true;
+
 
   }
 
