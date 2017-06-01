@@ -7,27 +7,21 @@ export default class extends Phaser.State {
     }
 
     preload() {
-        this.game.load.spritesheet('mario', 'assets/misc/mariospritesheet-small.png',50,50); // key, sourcefile, framesize x, framesize y
-        //background, ground, fireball images
-        this.game.load.image('ground', 'assets/misc/2048x48-ground.png');
-        this.game.load.image('clouds', 'assets/misc/clouds.jpg');
-        this.game.load.image('fireball', 'assets/misc/fireball.png',40,30);
-        //gamepad buttons
-        this.game.load.spritesheet('buttonvertical', 'assets/buttons/buttons-big/button-vertical.png',64,64);
-        this.game.load.spritesheet('buttonhorizontal', 'assets/buttons/buttons-big/button-horizontal.png',96,64);
-        this.game.load.spritesheet('buttondiagonal', 'assets/buttons/buttons-big/button-diagonal.png',64,64);
-        this.game.load.spritesheet('buttonfire', 'assets/buttons/buttons-big/button-round-a.png',96,96);
-        this.game.load.spritesheet('buttonjump', 'assets/buttons/buttons-big/button-round-b.png',96,96);
         // fullscreen setup
-        this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;    }
+        // this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        // this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+        }
 
     create() {
 
         window.game.global.lives = 3
         window.game.global.score= 0
+
         this.fireRate = 300
         this.nextFire = 0
+
+        this.left=false;
+        this.right=false;
 
         //  Text
         this.map = this.game.add.tilemap('level1');
@@ -44,7 +38,7 @@ export default class extends Phaser.State {
         //Change the world size to match the size of this layer
         this.backgroundLayer.resizeWorld();
 
-        this.player = this.game.add.sprite(50, 800, 'player')
+        this.player = this.game.add.sprite(50, 700, 'player')
 
         this.spawnEnemy()
 
@@ -87,6 +81,8 @@ export default class extends Phaser.State {
         this.game.input.activePointer.y = this.game.height/2 - 100;
 
         this.createMissile()
+
+        this.createVirtualInput()
     }
 
     update() {
@@ -108,6 +104,37 @@ export default class extends Phaser.State {
         this.game.physics.arcade.overlap(this.balls, this.enemy, this.killEnemy, null, this);
 
         this.inputs()
+    }
+
+    createVirtualInput(){
+        var out = this
+        this.buttonleft = this.game.add.button(32, 536-50, 'buttonhorizontal', null, this, 6, 4, 6, 4);
+        this.buttonleft.fixedToCamera = true;
+        this.buttonleft.events.onInputOver.add(function(){out.left=true;});
+        this.buttonleft.events.onInputOut.add(function(){out.left=false;});
+        this.buttonleft.events.onInputDown.add(function(){out.left=true;});
+        this.buttonleft.events.onInputUp.add(function(){out.left=false;});
+
+        this.buttonvertical = this.game.add.button(130, 472-50, 'buttonvertical', null, this, 0, 1, 0, 1);
+        this.buttonvertical.fixedToCamera = true;
+        this.buttonvertical.events.onInputOver.add(function(){out.up=true;});
+        this.buttonvertical.events.onInputOut.add(function(){out.up=false;});
+        this.buttonvertical.events.onInputDown.add(function(){out.up=true;});
+        this.buttonvertical.events.onInputUp.add(function(){out.up=false;});
+
+        this.buttonright = this.game.add.button(160, 536-50, 'buttonhorizontal', null, this, 7, 5, 7, 5);
+        this.buttonright.fixedToCamera = true;
+        this.buttonright.events.onInputOver.add(function(){out.right=true;});
+        this.buttonright.events.onInputOut.add(function(){out.right=false;});
+        this.buttonright.events.onInputDown.add(function(){out.right=true;});
+        this.buttonright.events.onInputUp.add(function(){out.right=false;});
+
+        this.buttondown = this.game.add.button(130, 564-50, 'buttonvertical', null, this, 0, 1, 0, 1);
+        this.buttondown.fixedToCamera = true;
+        this.buttondown.events.onInputOver.add(function(){out.down=true;});
+        this.buttondown.events.onInputOut.add(function(){out.down=false;});
+        this.buttondown.events.onInputDown.add(function(){out.down=true;});
+        this.buttondown.events.onInputUp.add(function(){out.down=false;});
     }
 
     createMissile(){
@@ -235,22 +262,22 @@ export default class extends Phaser.State {
     inputs() {
         this.player.body.velocity.set(0);
 
-        if (this.cursor.left.isDown)
+        if (this.cursor.left.isDown || this.left)
         {
             this.player.body.velocity.x = -220;
             this.player.play('left');
         }
-        else if (this.cursor.right.isDown)
+        else if (this.cursor.right.isDown|| this.right)
         {
             this.player.body.velocity.x = 220;
             this.player.play('right');
         }
-        else if (this.cursor.up.isDown)
+        else if (this.cursor.up.isDown || this.up)
         {
             this.player.body.velocity.y = -220;
             this.player.play('up');
         }
-        else if (this.cursor.down.isDown)
+        else if (this.cursor.down.isDown || this.down)
         {
             this.player.body.velocity.y = 220;
             this.player.play('down');
@@ -259,56 +286,6 @@ export default class extends Phaser.State {
         {
             this.player.animations.stop();
         }
-
-        // create our virtual game controller buttons
-        var buttonjump = this.game.add.button(600, 500, 'buttonjump', null, this, 0, 1, 0, 1);  //game, x, y, key, callback, callbackContext, overFrame, outFrame, downFrame, upFrame
-        buttonjump.fixedToCamera = true;  //our buttons should stay on the same place
-        buttonjump.events.onInputOver.add(function(){jump=true;});
-        buttonjump.events.onInputOut.add(function(){jump=false;});
-        buttonjump.events.onInputDown.add(function(){jump=true;});
-        buttonjump.events.onInputUp.add(function(){jump=false;});
-
-        var buttonfire = this.game.add.button(700, 500, 'buttonfire', null, this, 0, 1, 0, 1);
-        buttonfire.fixedToCamera = true;
-        buttonfire.events.onInputOver.add(function(){fire=true;});
-        buttonfire.events.onInputOut.add(function(){fire=false;});
-        buttonfire.events.onInputDown.add(function(){fire=true;});
-        buttonfire.events.onInputUp.add(function(){fire=false;});
-
-        var buttonleft = this.game.add.button(0, 472, 'buttonhorizontal', null, this, 0, 1, 0, 1);
-        buttonleft.fixedToCamera = true;
-        buttonleft.events.onInputOver.add(function(){left=true;});
-        buttonleft.events.onInputOut.add(function(){left=false;});
-        buttonleft.events.onInputDown.add(function(){left=true;});
-        buttonleft.events.onInputUp.add(function(){left=false;});
-
-        var buttonbottomleft = this.game.add.button(32, 536, 'buttondiagonal', null, this, 6, 4, 6, 4);
-        buttonbottomleft.fixedToCamera = true;
-        buttonbottomleft.events.onInputOver.add(function(){left=true;duck=true;});
-        buttonbottomleft.events.onInputOut.add(function(){left=false;duck=false;});
-        buttonbottomleft.events.onInputDown.add(function(){left=true;duck=true;});
-        buttonbottomleft.events.onInputUp.add(function(){left=false;duck=false;});
-
-        var buttonright = this.game.add.button(160, 472, 'buttonhorizontal', null, this, 0, 1, 0, 1);
-        buttonright.fixedToCamera = true;
-        buttonright.events.onInputOver.add(function(){right=true;});
-        buttonright.events.onInputOut.add(function(){right=false;});
-        buttonright.events.onInputDown.add(function(){right=true;});
-        buttonright.events.onInputUp.add(function(){right=false;});
-
-        var buttonbottomright = this.game.add.button(160, 536, 'buttondiagonal', null, this, 7, 5, 7, 5);
-        buttonbottomright.fixedToCamera = true;
-        buttonbottomright.events.onInputOver.add(function(){right=true;duck=true;});
-        buttonbottomright.events.onInputOut.add(function(){right=false;duck=false;});
-        buttonbottomright.events.onInputDown.add(function(){right=true;duck=true;});
-        buttonbottomright.events.onInputUp.add(function(){right=false;duck=false;});
-
-        var buttondown = this.game.add.button(96, 536, 'buttonvertical', null, this, 0, 1, 0, 1);
-        buttondown.fixedToCamera = true;
-        buttondown.events.onInputOver.add(function(){duck=true;});
-        buttondown.events.onInputOut.add(function(){duck=false;});
-        buttondown.events.onInputDown.add(function(){duck=true;});
-        buttondown.events.onInputUp.add(function(){duck=false;});
     }
 
     enemyFollow() {
@@ -360,6 +337,7 @@ export default class extends Phaser.State {
         this.spawnPlayer()
 
         if (this.lives.countLiving() < 1) {
+            this.game.scale.stopFullScreen();
             this.enemy.kill();
             this.player.kill();
 

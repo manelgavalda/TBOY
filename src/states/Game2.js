@@ -57,6 +57,9 @@ export default class extends Phaser.State {
         this.game.camera.setSize(800, 500);
         this.createMissile()
 
+
+        this.createVirtualInput()
+
     }
 
     update() {
@@ -80,6 +83,37 @@ export default class extends Phaser.State {
         this.inputs()
 
 
+    }
+
+    createVirtualInput(){
+        var out = this
+        this.buttonleft = this.game.add.button(32, 536-200, 'buttonhorizontal', null, this, 6, 4, 6, 4);
+        this.buttonleft.fixedToCamera = true;
+        this.buttonleft.events.onInputOver.add(function(){out.left=true;});
+        this.buttonleft.events.onInputOut.add(function(){out.left=false;});
+        this.buttonleft.events.onInputDown.add(function(){out.left=true;});
+        this.buttonleft.events.onInputUp.add(function(){out.left=false;});
+
+        this.buttonvertical = this.game.add.button(130, 472-200, 'buttonvertical', null, this, 0, 1, 0, 1);
+        this.buttonvertical.fixedToCamera = true;
+        this.buttonvertical.events.onInputOver.add(function(){out.up=true;});
+        this.buttonvertical.events.onInputOut.add(function(){out.up=false;});
+        this.buttonvertical.events.onInputDown.add(function(){out.up=true;});
+        this.buttonvertical.events.onInputUp.add(function(){out.up=false;});
+
+        this.buttonright = this.game.add.button(160, 536-200, 'buttonhorizontal', null, this, 7, 5, 7, 5);
+        this.buttonright.fixedToCamera = true;
+        this.buttonright.events.onInputOver.add(function(){out.right=true;});
+        this.buttonright.events.onInputOut.add(function(){out.right=false;});
+        this.buttonright.events.onInputDown.add(function(){out.right=true;});
+        this.buttonright.events.onInputUp.add(function(){out.right=false;});
+
+        this.buttondown = this.game.add.button(130, 564-200, 'buttonvertical', null, this, 0, 1, 0, 1);
+        this.buttondown.fixedToCamera = true;
+        this.buttondown.events.onInputOver.add(function(){out.down=true;});
+        this.buttondown.events.onInputOut.add(function(){out.down=false;});
+        this.buttondown.events.onInputDown.add(function(){out.down=true;});
+        this.buttondown.events.onInputUp.add(function(){out.down=false;});
     }
 
     createMissile(){
@@ -234,22 +268,22 @@ export default class extends Phaser.State {
     inputs() {
         this.player.body.velocity.set(0);
 
-        if (this.cursor.left.isDown)
+        if (this.cursor.left.isDown || this.left)
         {
             this.player.body.velocity.x = -220;
             this.player.play('left');
         }
-        else if (this.cursor.right.isDown)
+        else if (this.cursor.right.isDown|| this.right)
         {
             this.player.body.velocity.x = 220;
             this.player.play('right');
         }
-        else if (this.cursor.up.isDown)
+        else if (this.cursor.up.isDown || this.up)
         {
             this.player.body.velocity.y = -220;
             this.player.play('up');
         }
-        else if (this.cursor.down.isDown)
+        else if (this.cursor.down.isDown || this.down)
         {
             this.player.body.velocity.y = 220;
             this.player.play('down');
@@ -282,6 +316,7 @@ export default class extends Phaser.State {
         this.spawnPlayer()
 
         if (this.lives.countLiving() < 1) {
+            this.game.scale.stopFullScreen();
             this.enemy.kill();
             this.player.kill();
 

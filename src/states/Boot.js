@@ -46,13 +46,20 @@ export default class extends Phaser.State {
 
     this.load.image('tiles', './assets/images/tiles.png');
 
-    //Change the background colour
-    // this.game.stage.backgroundColor = "#3358ee";
-    this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
-    //have the game centered horizontally
-    this.scale.pageAlignHorizontally = true;
-    this.scale.pageAlignVertically = true;
+      //gamepad button
+      this.game.load.spritesheet('buttonvertical', './assets/buttons/button-vertical.png',64,64);
+      this.game.load.spritesheet('buttonhorizontal', './assets/buttons/button-horizontal.png',96,64);
+      this.game.load.spritesheet('buttondiagonal', './assets/buttons/button-diagonal.png',64,64);
+      this.game.load.spritesheet('buttonfire', './assets/buttons/button-round-a.png',96,96);
+      this.game.load.spritesheet('buttonjump', './assets/buttons/button-round-b.png',96,96);
+    //Change the background colour
+    // // this.game.stage.backgroundColor = "#3358ee";
+    // this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    //
+    // //have the game centered horizontally
+    // this.scale.pageAlignHorizontally = true;
+    // this.scale.pageAlignVertically = true;
 
 
   }
