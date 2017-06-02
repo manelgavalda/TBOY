@@ -13,14 +13,53 @@ export default class extends Phaser.State {
         this.fireRate = 300
         this.nextFire = 0
 
-        //  Text
+        this.initializeWorld();
+        this.initializeGui();
+        this.spawnEnemy();
+        this.createPhisics();
+        this.createPlayer();
+        this.createItems();
+        this.createDoors();
+        this.createBalls();
+        this.createBullets();
+        this.setCamera();
+        this.createMissile();
+        this.createVirtualInput();
+    }
+
+    update() {
+
+        this.balls.forEach(this.game.physics.arcade.moveToPointer, this.game.physics.arcade, false, 200);
+
+        if (this.game.input.activePointer.isDown) {
+            this.fire();
+        }
+        this.createCollisions()
+        this.inputs()
+    }
+
+    createCollisions(){
+        this.game.physics.arcade.collide(this.player, this.backgroundLayer);
+        this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
+        this.game.physics.arcade.overlap(this.player, this.doors, this.enterDoor, null, this);
+        this.game.physics.arcade.overlap(this.player, this.enemy, this.dead, null, this);
+        this.game.physics.arcade.overlap(this.player, [this.rocket1,this.rocket2, this.rocket3, this.rocket4, this.rocket5], this.dead, null, this);
+        this.game.physics.arcade.overlap(this.bullets, this.enemy, this.killEnemy, null, this);
+        this.game.physics.arcade.overlap(this.balls, this.enemy, this.killEnemy, null, this);
+    }
+
+    createPhisics(){
+        this.game.physics.arcade.enable(this.enemy)
+        this.game.physics.arcade.enable(this.player)
+        this.game.physics.arcade.enable(this.backgroundLayer)
+    }
+
+    initializeWorld(){
         this.map = this.game.add.tilemap('level2');
         this.map.addTilesetImage('tiles', 'tiles');
 
         this.groundLayer = this.map.createLayer('blockedLayer');
         this.backgroundLayer = this.map.createLayer('backgroundLayer');
-
-        this.initializeGui()
 
         // //Before you can use the collide function you need to set what tiles can collide
         this.map.setCollisionBetween(1, 1000, true, 'backgroundLayer');
@@ -28,87 +67,50 @@ export default class extends Phaser.State {
         //Change the world size to match the size of this layer
         this.backgroundLayer.resizeWorld();
 
-        this.spawnPlayer()
+        //Create player
+        this.player = this.game.add.sprite(50, 800, 'player')
+    }
 
-        this.spawnEnemy()
+    setCamera() {
+        this.game.camera.follow(this.player);
+        this.game.camera.setSize(800, 500);
+    }
 
-        this.game.physics.arcade.enable(this.enemy)
-        this.game.physics.arcade.enable(this.player)
-        this.game.physics.arcade.enable(this.backgroundLayer)
-
-        this.cursor = this.game.input.keyboard.createCursorKeys()
-
+    createPlayer(){
         this.player.frame = 1
         this.player.animations.add('down', [2, 1, 0], 10, false)
         this.player.animations.add('left', [3, 4, 5], 10, false)
         this.player.animations.add('right', [8, 7, 6], 10, false)
         this.player.animations.add('up', [9, 10, 11], 10, false)
-
         this.player.body.gravity.y = 0;
         this.player.body.allowRotation = false;
         this.player.body.setSize(30, 20, 35, 35);
-
-        this.createItems();
-        this.createDoors();
-        this.createBalls();
-        this.createBullets();
-
-        this.game.camera.follow(this.player);
-        this.game.camera.setSize(800, 500);
-        this.createMissile()
-
-
-        this.createVirtualInput()
-
-    }
-
-    update() {
-        this.balls.forEach(this.game.physics.arcade.moveToPointer, this.game.physics.arcade, false, 200);
-        // this.player.rotation = this.game.physics.arcade.angleToPointer(this.player);
-
-        if (this.game.input.activePointer.isDown) {
-            this.fire();
-        }
-
-        this.enemyFollow()
-
-        this.game.physics.arcade.collide(this.player, this.backgroundLayer)
-        this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
-        this.game.physics.arcade.overlap(this.player, this.doors, this.enterDoor, null, this);
-        this.game.physics.arcade.overlap(this.player, this.enemy, this.dead, null, this);
-        this.game.physics.arcade.overlap(this.player, [this.rocket1,this.rocket2, this.rocket3, this.rocket4], this.dead, null, this);
-        this.game.physics.arcade.overlap(this.bullets, this.enemy, this.killEnemy, null, this)
-        this.game.physics.arcade.overlap(this.balls, this.enemy, this.killEnemy, null, this)
-
-        this.inputs()
-
-
     }
 
     createVirtualInput(){
         var out = this
-        this.buttonleft = this.game.add.button(32, 536-200, 'buttonhorizontal', null, this, 6, 4, 6, 4);
+        this.buttonleft = this.game.add.button(32, 536-50, 'buttonhorizontal', null, this, 6, 4, 6, 4);
         this.buttonleft.fixedToCamera = true;
         this.buttonleft.events.onInputOver.add(function(){out.left=true;});
         this.buttonleft.events.onInputOut.add(function(){out.left=false;});
         this.buttonleft.events.onInputDown.add(function(){out.left=true;});
         this.buttonleft.events.onInputUp.add(function(){out.left=false;});
 
-        this.buttonvertical = this.game.add.button(130, 472-200, 'buttonvertical', null, this, 0, 1, 0, 1);
+        this.buttonvertical = this.game.add.button(130, 472-50, 'buttonvertical', null, this, 0, 1, 0, 1);
         this.buttonvertical.fixedToCamera = true;
         this.buttonvertical.events.onInputOver.add(function(){out.up=true;});
         this.buttonvertical.events.onInputOut.add(function(){out.up=false;});
         this.buttonvertical.events.onInputDown.add(function(){out.up=true;});
         this.buttonvertical.events.onInputUp.add(function(){out.up=false;});
 
-        this.buttonright = this.game.add.button(160, 536-200, 'buttonhorizontal', null, this, 7, 5, 7, 5);
+        this.buttonright = this.game.add.button(160, 536-50, 'buttonhorizontal', null, this, 7, 5, 7, 5);
         this.buttonright.fixedToCamera = true;
         this.buttonright.events.onInputOver.add(function(){out.right=true;});
         this.buttonright.events.onInputOut.add(function(){out.right=false;});
         this.buttonright.events.onInputDown.add(function(){out.right=true;});
         this.buttonright.events.onInputUp.add(function(){out.right=false;});
 
-        this.buttondown = this.game.add.button(130, 564-200, 'buttonvertical', null, this, 0, 1, 0, 1);
+        this.buttondown = this.game.add.button(130, 564-50, 'buttonvertical', null, this, 0, 1, 0, 1);
         this.buttondown.fixedToCamera = true;
         this.buttondown.events.onInputOver.add(function(){out.down=true;});
         this.buttondown.events.onInputOut.add(function(){out.down=false;});
@@ -117,6 +119,9 @@ export default class extends Phaser.State {
     }
 
     createMissile(){
+        this.game.input.activePointer.x = this.game.width/2;
+        this.game.input.activePointer.y = this.game.height/2 - 100;
+
         this.rocket1 = this.game.add.existing(
             new Missile(this.game, this.game.width/2, this.game.height - 16, this.player)
         );
@@ -125,30 +130,23 @@ export default class extends Phaser.State {
             new Missile(this.game, this.game.width/2 -200, this.game.height -200, this.player)
         );
 
-        this.rocket2 = this.game.add.existing(
+        this.rocket3 = this.game.add.existing(
             new Missile(this.game, this.game.width/2 -300, this.game.height -150, this.player)
         );
 
-        this.rocket3 = this.game.add.existing(
+        this.rocket4 = this.game.add.existing(
             new Missile(this.game, this.game.width/2 -500, this.game.height -250, this.player)
         );
 
-        this.rocket4 = this.game.add.existing(
+        this.rocket5 = this.game.add.existing(
             new Missile(this.game, this.game.width/2 -800, this.game.height -200, this.player)
         );
     }
-    createBullets(){
-        this.bullets = this.game.add.group();
-        this.bullets.enableBody = true;
-        this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
-        this.bullets.createMultiple(10, 'bullet');
-        this.bullets.setAll('checkWorldBounds', true);
-        this.bullets.setAll('outOfBoundsKill', true);
-    }
 
     initializeGui(){
+        this.cursor = this.game.input.keyboard.createCursorKeys()
         this.livesText = this.game.add.text(16, 16, 'Lives : ', {fontSize: '32px', fill: '#ffffff'});
-        this.scoreText = this.game.add.text(this.game.world.width - 150, 16, 'Score: 0', { fontSize: '32px', fill: '#ffffff' });
+        this.scoreText = this.game.add.text(this.game.world.width - 250, 16, 'Score: ' + window.game.global.score, { fontSize: '32px', fill: '#ffffff' });
 
         this.livesText.fixedToCamera = true;
         this.scoreText.fixedToCamera = true;
@@ -161,10 +159,26 @@ export default class extends Phaser.State {
         this.lives = this.game.add.group();
         for (var i = 0; i < window.game.global.lives; i++) {
             this.playerLives = this.lives.create(85 + (30 * i), -10, 'player');
-            // player.anchor.setTo(0.5, 0.5);
-            // ship.angle = 90;
             this.playerLives.alpha = 0.8;
             this.playerLives.fixedToCamera = true;
+        }
+    }
+
+    createBullets(){
+        this.bullets = this.game.add.group();
+        this.bullets.enableBody = true;
+        this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
+        this.bullets.createMultiple(10, 'bullet');
+        this.bullets.setAll('checkWorldBounds', true);
+        this.bullets.setAll('outOfBoundsKill', true);
+    }
+
+    createBalls(){
+        this.balls = this.game.add.group();
+        this.balls.enableBody = true;
+        for (var i = 0; i < 3; i++)
+        {
+            var ball = this.balls.create(this.game.world.randomX, this.game.world.randomY, 'bullet');
         }
     }
 
@@ -183,9 +197,6 @@ export default class extends Phaser.State {
         var result = []
         map.objects[layer].forEach(function (element) {
             if (element.properties.type === type) {
-                //Phaser uses top left, Tiled bottom left so we have to adjust the y position
-                //also keep in mind that the cup images are a bit smaller than the tile which is 16x16
-                //so they might not be placed in the exact pixel position as in Tiled
                 element.y -= map.tileHeight;
                 result.push(element);
             }
@@ -193,18 +204,14 @@ export default class extends Phaser.State {
         return result;
     }
 
-    //create a sprite from an object
     createFromTiledObject(element, group) {
         var sprite = group.create(element.x, element.y, element.properties.sprite);
-
-        //copy all properties to the sprite
         Object.keys(element.properties).forEach(function (key) {
             sprite[key] = element.properties[key];
         });
     }
 
     createDoors() {
-        //create doors
         this.doors = this.game.add.group();
         this.doors.enableBody = true;
         var result = this.findObjectsByType('door', this.map, 'objectsLayer');
@@ -216,55 +223,14 @@ export default class extends Phaser.State {
 
     collect(player, collectable) {
         this.game.add.audio('item').play();
-        window.game.global.score  += 10;
+        window.game.global.score  += 500;
         this.scoreText.text = 'Score: ' + window.game.global.score;
         console.log('coleccionada');
-
-        //remove sprite
         collectable.destroy();
     }
 
     enterDoor(player, door) {
-        console.log('entering door that will take you to ' + door.targetTilemap + ' on x:' + door.targetX + ' and y:' + door.targetY);
-        this.state.start("End");
-    }
-
-    enemyFollow() {
-        // this.enemy.body.velocity.y = this.y-=1
-        // var NUMBER_OF_FOLLOWERS = 10;
-        // for(var i = 0; i < NUMBER_OF_FOLLOWERS; i++) {
-        //     var f = this.game.add.existing(
-        //         new Enemy(this.game,
-        //             this.game.width/2 + i * 32,
-        //             this.game.height/2,
-        //             f || this.game.input /* the previous follower or pointer */
-        //         )
-        //     );
-        // }
-    }
-
-    fire() {
-        this.game.add.audio('laser').play();
-        if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
-            this.nextFire = this.game.time.now + this.fireRate;
-
-            var bullet = this.bullets.getFirstDead();
-
-            bullet.reset(this.player.x + 35, this.player.y + 20);
-
-            this.game.physics.arcade.moveToPointer(bullet, 300);
-        }
-
-    }
-
-    createBalls() {
-        this.balls = this.game.add.group();
-        this.balls.enableBody = true;
-
-        for (var i = 0; i < 3; i++) {
-            var ball = this.balls.create(this.game.world.randomX, this.game.world.randomY, 'bullet');
-        }
-
+        this.state.start('End');
     }
 
     inputs() {
@@ -296,10 +262,26 @@ export default class extends Phaser.State {
         }
     }
 
+    fire() {
+        if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+            this.nextFire = this.game.time.now + this.fireRate;
+
+            var bullet = this.bullets.getFirstDead();
+
+            bullet.reset(this.player.x + 35, this.player.y + 20);
+            this.game.add.audio('laser').play();
+
+            this.game.physics.arcade.moveToPointer(bullet, 300);
+        }
+
+    }
+
     dead() {
+        this.setParticles()
         this.game.add.audio('dead').play();
         window.game.global.lives -= 1
-        this.enemy.kill()
+        window.game.global.score  -= 500;
+        this.scoreText.text = 'Score: ' + window.game.global.score;
         var live = this.lives.getFirstAlive();
 
         if (live) {
@@ -307,15 +289,8 @@ export default class extends Phaser.State {
         }
 
         this.playerIsDead = true
-        // this.deadSound.play()
         this.game.camera.shake(0.05, 200)
-
-        if (this.playerIsDead) {
-            // this.explosion.x = this.player.x
-            // this.explosion.y = this.player.y + 10
-            // this.explosion.start(true, 300, null, 20)
-        }
-        //tornar a colocar usuari en posició inicial
+        console.log(this.lives)
         this.spawnPlayer()
 
         if (this.lives.countLiving() < 1) {
@@ -326,33 +301,16 @@ export default class extends Phaser.State {
             this.stateText.text = " GAME OVER \n Click to restart";
             this.stateText.visible = true;
 
-            //the "click to restart" handler
             this.game.input.onTap.addOnce(this.restart, this);
         }
     }
 
-    killEnemy(){
-        this.enemy.kill()
-        this.enemy.reset(500, 500);
-        this.game.camera.shake(0.02, 100)
-    }
-
     restart() {
-        this.game.state.start('Boot' +
-            '')
+        this.game.state.start('Menu' + '')
         this.stateText.visible = false;
-        //  A new level starts
         this.enemy.reset(100, 100);
-
-        //resets the life count
         this.lives.callAll('revive');
-        //  And brings the aliens back from the dead :)
-        // aliens.removeAll();
-        // createAliens();
-
-        //revives the player
         this.player.revive();
-        //hides the text
     }
 
     spawnEnemy() {
@@ -379,18 +337,33 @@ export default class extends Phaser.State {
         }
     }
 
+    setParticles() {
+        this.explosion = this.game.add.emitter(0, 0, 20);
+        this.explosion.makeParticles('deadParticle');
+        this.explosion.setYSpeed(-150, 150);
+        this.explosion.setXSpeed(-150, 150);
+        this.explosion.x = this.player.x;
+        this.explosion.y = this.player.y+10;
+        this.explosion.start(true, 300, null, 8);
+    }
 
+    killEnemy(){
+        this.game.add.audio('dead').play();
+        this.enemy.kill()
+        this.enemy.reset(500, 500);
+        this.game.camera.shake(0.02, 100)
+        window.game.global.score+=1;
+        this.scoreText.text = 'Score: ' + window.game.global.score;
+    }
 
     render() {
         if (__DEV__) {
             // this.game.debug.spriteInfo(this.mushroom, 32, 32)
         }
     }
-
 }
 
-
-var Missile = function(game, x, y, player) {
+var Missile = function(game, x, y, player, dead) {
     this.player=player
     Phaser.Sprite.call(this, game, x, y, 'rocket');
 
@@ -415,7 +388,7 @@ Missile.prototype.update = function() {
     // target coordinates you need.
     var targetAngle = this.game.math.angleBetween(
         this.x, this.y,
-        this.player.y, this.player.x
+        this.player.position.y, this.player.position.x
     );
 
     // Gradually (this.TURN_RATE) aim the missile towards the target angle

@@ -13,8 +13,6 @@ export default class extends Phaser.State {
 
     create() {
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        //
-        // //have the game centered horizontally
         this.scale.pageAlignHorizontally = true;
         this.scale.pageAlignVertically = true;
 
@@ -24,25 +22,16 @@ export default class extends Phaser.State {
         this.music.loop = true;
         this.music.play();
 
-        let text = this.add.text(this.world.centerX, this.world.centerY - 50, 'PLAY', {
-            font: '50px Arial',
-            fill: '#dddddd',
-            align: 'center'
-        })
-        text.anchor.setTo(0.5, 0.5)
-
-        var title = this.add.text(this.world.centerX, this.world.centerY - 150, 'TBOY', {
+        var title = this.add.text(this.world.centerX, this.world.centerY - 200, 'TBOY', {
             font: '100px Revalia',
             fill: '#dddddd',
             align: 'center'
         })
 
         title.anchor.set(0.5);
-        // var grid = this.add.sprite(this.world.width / 2, 130, "gridedition");
-        // grid.anchor.set(0.5);
-        var playButton = this.add.button(this.world.width / 2, this.world.height / 2 + 100 - 50, "playbutton", function () {
+        var playButton = this.add.button(this.world.width / 2, this.world.height / 2 + 100 - 150, "playbutton", function () {
             this.game.scale.startFullScreen(false);
-            this.game.state.start('Splash')
+            this.game.state.start('Game')
         });
         playButton.anchor.set(0.5);
         menuGroup = this.add.group();
@@ -71,14 +60,13 @@ export default class extends Phaser.State {
 
     }
 
-
     toggleMenu() {
         if (menuGroup.y == 0) {
             var menuTween = this.game.add.tween(menuGroup).to({
-                y: -180
+                y: -260
             }, 500, Phaser.Easing.Bounce.Out, true);
         }
-        if (menuGroup.y == -180) {
+        if (menuGroup.y == -260) {
             var menuTween = this.game.add.tween(menuGroup).to({
                 y: 0
             }, 500, Phaser.Easing.Bounce.Out, true);

@@ -7,82 +7,28 @@ export default class extends Phaser.State {
     }
 
     preload() {
-        // fullscreen setup
-        // this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        // this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+
         }
 
     create() {
 
         window.game.global.lives = 3
         window.game.global.score= 0
-
         this.fireRate = 300
         this.nextFire = 0
 
-        this.left=false;
-        this.right=false;
-
-        //  Text
-        this.map = this.game.add.tilemap('level1');
-        this.map.addTilesetImage('tiles', 'tiles');
-
-        this.groundLayer = this.map.createLayer('blockedLayer');
-        this.backgroundLayer = this.map.createLayer('backgroundLayer');
-
-        this.initializeGui()
-
-        // //Before you can use the collide function you need to set what tiles can collide
-        this.map.setCollisionBetween(1, 1000, true, 'backgroundLayer');
-
-        //Change the world size to match the size of this layer
-        this.backgroundLayer.resizeWorld();
-
-        this.player = this.game.add.sprite(50, 700, 'player')
-
-        this.spawnEnemy()
-
-        this.game.physics.arcade.enable(this.enemy)
-        this.game.physics.arcade.enable(this.player)
-        this.game.physics.arcade.enable(this.backgroundLayer)
-
-        this.cursor = this.game.input.keyboard.createCursorKeys()
-
-        this.player.frame = 1
-        this.player.animations.add('down', [2, 1, 0], 10, false)
-        this.player.animations.add('left', [3, 4, 5], 10, false)
-        this.player.animations.add('right', [8, 7, 6], 10, false)
-        this.player.animations.add('up', [9, 10, 11], 10, false)
-
-        this.player.body.gravity.y = 0;
-        this.player.body.allowRotation = false;
-        this.player.body.setSize(30, 20, 35, 35);
-
+        this.initializeWorld();
+        this.initializeGui();
+        this.spawnEnemy();
+        this.createPhisics();
+        this.createPlayer();
         this.createItems();
         this.createDoors();
         this.createBalls();
         this.createBullets();
-
-        this.game.camera.follow(this.player);
-
-
-
-        this.game.camera.setSize(800, 500);
-
-        // Create a missile and add it to the game in the bottom center of the stage
-        // this.game.add.existing(
-        //     new Missile(this.game, this.game.width/2, this.game.height - 16)
-        // );
-
-
-        // Simulate a pointer click/tap input at the center of the stage
-        // when the example begins running.
-        this.game.input.activePointer.x = this.game.width/2;
-        this.game.input.activePointer.y = this.game.height/2 - 100;
-
-        this.createMissile()
-
-        this.createVirtualInput()
+        this.setCamera();
+        this.createMissile();
+        this.createVirtualInput();
     }
 
     update() {
@@ -92,9 +38,11 @@ export default class extends Phaser.State {
         if (this.game.input.activePointer.isDown) {
             this.fire();
         }
+        this.createCollisions()
+        this.inputs()
+    }
 
-        this.enemyFollow()
-
+    createCollisions(){
         this.game.physics.arcade.collide(this.player, this.backgroundLayer);
         this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);
         this.game.physics.arcade.overlap(this.player, this.doors, this.enterDoor, null, this);
@@ -102,8 +50,45 @@ export default class extends Phaser.State {
         this.game.physics.arcade.overlap(this.player, [this.rocket1,this.rocket2, this.rocket3, this.rocket4, this.rocket5], this.dead, null, this);
         this.game.physics.arcade.overlap(this.bullets, this.enemy, this.killEnemy, null, this);
         this.game.physics.arcade.overlap(this.balls, this.enemy, this.killEnemy, null, this);
+    }
 
-        this.inputs()
+    createPhisics(){
+        this.game.physics.arcade.enable(this.enemy)
+        this.game.physics.arcade.enable(this.player)
+        this.game.physics.arcade.enable(this.backgroundLayer)
+    }
+
+    initializeWorld(){
+        this.map = this.game.add.tilemap('level1');
+        this.map.addTilesetImage('tiles', 'tiles');
+
+        this.groundLayer = this.map.createLayer('blockedLayer');
+        this.backgroundLayer = this.map.createLayer('backgroundLayer');
+
+        // //Before you can use the collide function you need to set what tiles can collide
+        this.map.setCollisionBetween(1, 1000, true, 'backgroundLayer');
+
+        //Change the world size to match the size of this layer
+        this.backgroundLayer.resizeWorld();
+
+        //Create player
+        this.player = this.game.add.sprite(50, 800, 'player')
+    }
+
+    setCamera() {
+        this.game.camera.follow(this.player);
+        this.game.camera.setSize(800, 500);
+    }
+
+    createPlayer(){
+        this.player.frame = 1
+        this.player.animations.add('down', [2, 1, 0], 10, false)
+        this.player.animations.add('left', [3, 4, 5], 10, false)
+        this.player.animations.add('right', [8, 7, 6], 10, false)
+        this.player.animations.add('up', [9, 10, 11], 10, false)
+        this.player.body.gravity.y = 0;
+        this.player.body.allowRotation = false;
+        this.player.body.setSize(30, 20, 35, 35);
     }
 
     createVirtualInput(){
@@ -138,6 +123,9 @@ export default class extends Phaser.State {
     }
 
     createMissile(){
+        this.game.input.activePointer.x = this.game.width/2;
+        this.game.input.activePointer.y = this.game.height/2 - 100;
+
         this.rocket1 = this.game.add.existing(
             new Missile(this.game, this.game.width/2, this.game.height - 16, this.player)
         );
@@ -160,8 +148,9 @@ export default class extends Phaser.State {
     }
 
     initializeGui(){
+        this.cursor = this.game.input.keyboard.createCursorKeys()
         this.livesText = this.game.add.text(16, 16, 'Lives : ', {fontSize: '32px', fill: '#ffffff'});
-        this.scoreText = this.game.add.text(this.game.world.width - 150, 16, 'Score: 0', { fontSize: '32px', fill: '#ffffff' });
+        this.scoreText = this.game.add.text(this.game.world.width - 250, 16, 'Score: ' + window.game.global.score, { fontSize: '32px', fill: '#ffffff' });
 
         this.livesText.fixedToCamera = true;
         this.scoreText.fixedToCamera = true;
@@ -174,8 +163,6 @@ export default class extends Phaser.State {
         this.lives = this.game.add.group();
         for (var i = 0; i < window.game.global.lives; i++) {
             this.playerLives = this.lives.create(85 + (30 * i), -10, 'player');
-            // player.anchor.setTo(0.5, 0.5);
-            // ship.angle = 90;
             this.playerLives.alpha = 0.8;
             this.playerLives.fixedToCamera = true;
         }
@@ -214,9 +201,6 @@ export default class extends Phaser.State {
         var result = []
         map.objects[layer].forEach(function (element) {
             if (element.properties.type === type) {
-                //Phaser uses top left, Tiled bottom left so we have to adjust the y position
-                //also keep in mind that the cup images are a bit smaller than the tile which is 16x16
-                //so they might not be placed in the exact pixel position as in Tiled
                 element.y -= map.tileHeight;
                 result.push(element);
             }
@@ -224,18 +208,14 @@ export default class extends Phaser.State {
         return result;
     }
 
-    //create a sprite from an object
     createFromTiledObject(element, group) {
         var sprite = group.create(element.x, element.y, element.properties.sprite);
-
-        //copy all properties to the sprite
         Object.keys(element.properties).forEach(function (key) {
             sprite[key] = element.properties[key];
         });
     }
 
     createDoors() {
-        //create doors
         this.doors = this.game.add.group();
         this.doors.enableBody = true;
         var result = this.findObjectsByType('door', this.map, 'objectsLayer');
@@ -247,16 +227,13 @@ export default class extends Phaser.State {
 
     collect(player, collectable) {
         this.game.add.audio('item').play();
-        window.game.global.score  += 10;
+        window.game.global.score  += 500;
         this.scoreText.text = 'Score: ' + window.game.global.score;
         console.log('coleccionada');
-
-        //remove sprite
         collectable.destroy();
     }
 
     enterDoor(player, door) {
-        console.log('entering door that will take you to ' + door.targetTilemap + ' on x:' + door.targetX + ' and y:' + door.targetY);
         this.state.start('Level2');
     }
 
@@ -289,20 +266,6 @@ export default class extends Phaser.State {
         }
     }
 
-    enemyFollow() {
-        // this.enemy.body.velocity.y = this.y -= 1
-        // var NUMBER_OF_FOLLOWERS = 10;
-        // for(var i = 0; i < NUMBER_OF_FOLLOWERS; i++) {
-        //     var f = this.game.add.existing(
-        //         new Enemy(this.game,
-        //             this.game.width/2 + i * 32,
-        //             this.game.height/2,
-        //             f || this.game.input /* the previous follower or pointer */
-        //         )
-        //     );
-        // }
-    }
-
     fire() {
         if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
             this.nextFire = this.game.time.now + this.fireRate;
@@ -320,8 +283,9 @@ export default class extends Phaser.State {
     dead() {
         this.setParticles()
         this.game.add.audio('dead').play();
-
         window.game.global.lives -= 1
+        window.game.global.score  -= 500;
+        this.scoreText.text = 'Score: ' + window.game.global.score;
         var live = this.lives.getFirstAlive();
 
         if (live) {
@@ -329,16 +293,8 @@ export default class extends Phaser.State {
         }
 
         this.playerIsDead = true
-        // this.deadSound.play()
         this.game.camera.shake(0.05, 200)
         console.log(this.lives)
-
-        if (this.playerIsDead) {
-            // this.explosion.x = this.player.x
-            // this.explosion.y = this.player.y + 10
-            // this.explosion.start(true, 300, null, 20)
-        }
-        //tornar a colocar usuari en posició inicial
         this.spawnPlayer()
 
         if (this.lives.countLiving() < 1) {
@@ -349,27 +305,16 @@ export default class extends Phaser.State {
             this.stateText.text = " GAME OVER \n Click to restart";
             this.stateText.visible = true;
 
-            //the "click to restart" handler
             this.game.input.onTap.addOnce(this.restart, this);
         }
     }
 
     restart() {
-        this.game.state.start('Boot' +
-            '')
+        this.game.state.start('Menu' + '')
         this.stateText.visible = false;
-        //  A new level starts
         this.enemy.reset(100, 100);
-
-        //resets the life count
         this.lives.callAll('revive');
-        //  And brings the aliens back from the dead :)
-        // aliens.removeAll();
-        // createAliens();
-
-        //revives the player
         this.player.revive();
-        //hides the text
     }
 
     spawnEnemy() {
@@ -397,7 +342,6 @@ export default class extends Phaser.State {
     }
 
     setParticles() {
-
         this.explosion = this.game.add.emitter(0, 0, 20);
         this.explosion.makeParticles('deadParticle');
         this.explosion.setYSpeed(-150, 150);
@@ -405,7 +349,6 @@ export default class extends Phaser.State {
         this.explosion.x = this.player.x;
         this.explosion.y = this.player.y+10;
         this.explosion.start(true, 300, null, 8);
-        // this.explosion.gravity = 0;
     }
 
     killEnemy(){
@@ -413,6 +356,8 @@ export default class extends Phaser.State {
         this.enemy.kill()
         this.enemy.reset(500, 500);
         this.game.camera.shake(0.02, 100)
+        window.game.global.score+=1;
+        this.scoreText.text = 'Score: ' + window.game.global.score;
     }
 
     render() {
@@ -421,7 +366,6 @@ export default class extends Phaser.State {
         }
     }
 }
-
 
 var Missile = function(game, x, y, player, dead) {
     this.player=player

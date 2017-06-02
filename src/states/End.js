@@ -5,18 +5,19 @@ export default class extends Phaser.State {
   init () {}
 
   preload () {
-    this.loaderBg = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'loaderBg')
-    this.loaderBar = this.add.sprite(this.game.world.centerX, this.game.world.centerY, 'loaderBar')
-    centerGameObjects([this.loaderBg, this.loaderBar])
-
-    this.load.setPreloadSprite(this.loaderBar)
-    //
-    // load your assets
-    //
-    this.load.image('mushroom', 'assets/images/player.png')
   }
 
   create () {
-    this.state.start('Boot')
+      var title = this.add.text(this.world.centerX -200, this.world.centerY - 150, 'Good Job', {
+          font: '100px Revalia',
+          fill: '#dddddd',
+          align: 'center'
+      })
+
+      var score = this.add.text(this.world.centerX -300, this.world.centerY, 'Score: '+ window.score, {
+          font: '100px Revalia',
+          fill: '#dddddd',
+          align: 'center'
+      })
   }
 }

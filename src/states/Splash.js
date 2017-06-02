@@ -10,12 +10,9 @@ export default class extends Phaser.State {
     centerGameObjects([this.loaderBg, this.loaderBar])
 
     this.load.setPreloadSprite(this.loaderBar)
-    //
-    // load your assets
-    //
   }
 
   create () {
-    this.state.start('Game')
+    this.state.start('Menu')
   }
 }
