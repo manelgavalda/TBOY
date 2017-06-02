@@ -12,7 +12,14 @@ export default class extends Phaser.State {
     }
 
     create() {
+        this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        //
+        // //have the game centered horizontally
+        this.scale.pageAlignHorizontally = true;
+        this.scale.pageAlignVertically = true;
 
+        var music_on_off = 0
+        var out = this
         this.music = this.game.add.audio('bso');
         this.music.loop = true;
         this.music.play();
@@ -42,7 +49,15 @@ export default class extends Phaser.State {
         var menuButton = this.add.button(this.world.width / 2, this.world.height - 30, "menubutton", this.toggleMenu);
         menuButton.anchor.set(0.5);
         menuGroup.add(menuButton);
-        var resetGame = this.add.button(this.world.width / 2, this.world.height + 50, "resetgame", function () {
+        var resetGame = this.add.button(this.world.width / 2, this.world.height + 50, "resetgame", function() {
+
+            if(music_on_off == 0){
+                out.music.resume()
+                music_on_off = 1
+            } else {
+                out.music.pause()
+                music_on_off = 0
+            }
         });
         resetGame.anchor.set(0.5);
         menuGroup.add(resetGame);
@@ -70,16 +85,8 @@ export default class extends Phaser.State {
         }
     }
 
-    toggleMusic() {
-        if (menuGroup.y == 0) {
-            var menuTween = this.game.add.tween(menuGroup).to({
-                y: -180
-            }, 500, Phaser.Easing.Bounce.Out, true);
-        }
-        if (menuGroup.y == -180) {
-            var menuTween = this.game.add.tween(menuGroup).to({
-                y: 0
-            }, 500, Phaser.Easing.Bounce.Out, true);
-        }
+    toogleMusic(){
+        var i = 0
+
     }
 }

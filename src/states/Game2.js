@@ -215,6 +215,7 @@ export default class extends Phaser.State {
     }
 
     collect(player, collectable) {
+        this.game.add.audio('item').play();
         window.game.global.score  += 10;
         this.scoreText.text = 'Score: ' + window.game.global.score;
         console.log('coleccionada');
@@ -243,6 +244,7 @@ export default class extends Phaser.State {
     }
 
     fire() {
+        this.game.add.audio('laser').play();
         if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
             this.nextFire = this.game.time.now + this.fireRate;
 
@@ -295,6 +297,7 @@ export default class extends Phaser.State {
     }
 
     dead() {
+        this.game.add.audio('dead').play();
         window.game.global.lives -= 1
         this.enemy.kill()
         var live = this.lives.getFirstAlive();

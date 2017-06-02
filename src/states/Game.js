@@ -246,6 +246,7 @@ export default class extends Phaser.State {
     }
 
     collect(player, collectable) {
+        this.game.add.audio('item').play();
         window.game.global.score  += 10;
         this.scoreText.text = 'Score: ' + window.game.global.score;
         console.log('coleccionada');
@@ -309,6 +310,7 @@ export default class extends Phaser.State {
             var bullet = this.bullets.getFirstDead();
 
             bullet.reset(this.player.x + 35, this.player.y + 20);
+            this.game.add.audio('laser').play();
 
             this.game.physics.arcade.moveToPointer(bullet, 300);
         }
@@ -316,6 +318,9 @@ export default class extends Phaser.State {
     }
 
     dead() {
+        this.setParticles()
+        this.game.add.audio('dead').play();
+
         window.game.global.lives -= 1
         var live = this.lives.getFirstAlive();
 
@@ -391,7 +396,20 @@ export default class extends Phaser.State {
         }
     }
 
+    setParticles() {
+
+        this.explosion = this.game.add.emitter(0, 0, 20);
+        this.explosion.makeParticles('deadParticle');
+        this.explosion.setYSpeed(-150, 150);
+        this.explosion.setXSpeed(-150, 150);
+        this.explosion.x = this.player.x;
+        this.explosion.y = this.player.y+10;
+        this.explosion.start(true, 300, null, 8);
+        // this.explosion.gravity = 0;
+    }
+
     killEnemy(){
+        this.game.add.audio('dead').play();
         this.enemy.kill()
         this.enemy.reset(500, 500);
         this.game.camera.shake(0.02, 100)

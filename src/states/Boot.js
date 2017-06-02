@@ -18,6 +18,9 @@ export default class extends Phaser.State {
     })
 
     this.load.audio('bso', ['assets/sounds/bso.mp3']);
+    this.load.audio('item', ['assets/sounds/item.mp3']);
+    this.load.audio('laser', ['assets/sounds/laser.mp3']);
+    this.load.audio('dead', ['assets/sounds/dead.mp3']);
 
     this.load.image("gametitle", "./assets/sprites/gametitle.png");
     this.load.image("gridedition", "./assets/sprites/gridedition.png");
@@ -53,13 +56,11 @@ export default class extends Phaser.State {
       this.game.load.spritesheet('buttondiagonal', './assets/buttons/button-diagonal.png',64,64);
       this.game.load.spritesheet('buttonfire', './assets/buttons/button-round-a.png',96,96);
       this.game.load.spritesheet('buttonjump', './assets/buttons/button-round-b.png',96,96);
-    //Change the background colour
+
+
+      this.game.load.image('deadParticle', './assets/images/deadParticle.png')
+      //Change the background colour
     // // this.game.stage.backgroundColor = "#3358ee";
-    // this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-    //
-    // //have the game centered horizontally
-    // this.scale.pageAlignHorizontally = true;
-    // this.scale.pageAlignVertically = true;
 
 
   }
