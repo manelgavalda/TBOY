@@ -22,7 +22,7 @@ class Game extends Phaser.Game {
       super(900, 600, Phaser.CANVAS, 'content', null)
 
     this.state.add('Boot', BootState, false)
-      this.state.add('Splash', SplashState, false)
+    this.state.add('Splash', SplashState, false)
     this.state.add('Menu', MenuState, false)
     this.state.add('Game', GameState, false)
     this.state.add('Level2', Level2State, false)
