@@ -57,6 +57,7 @@ export default class extends Phaser.State {
 
 
     this.game.load.image('deadParticle', './assets/images/deadParticle.png')
+    this.game.load.image('rainParticle', './assets/images/rainParticle.png')
 
   }
 

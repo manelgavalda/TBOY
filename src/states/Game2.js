@@ -20,6 +20,7 @@ export default class extends Phaser.State {
         this.createPlayer();
         this.createItems();
         this.createDoors();
+        this.createRain();
         this.createBalls();
         this.createBullets();
         this.setCamera();
@@ -36,6 +37,19 @@ export default class extends Phaser.State {
         }
         this.createCollisions()
         this.inputs()
+    }
+
+    createRain(){
+        this.emitter = this.game.add.emitter(this.game.world.centerX, 0, 400);
+        this.emitter.width = this.game.world.width;
+        this.emitter.makeParticles('rainParticle');
+        this.emitter.minParticleScale = 0.1;
+        this.emitter.maxParticleScale = 0.5;
+        this.emitter.setYSpeed(300, 500);
+        this.emitter.setXSpeed(-5, 5);
+        this.emitter.minRotation = 0;
+        this.emitter.maxRotation = 0;
+        this.emitter.start(false, 1600, 5, 0);
     }
 
     createCollisions(){
@@ -147,9 +161,11 @@ export default class extends Phaser.State {
         this.cursor = this.game.input.keyboard.createCursorKeys()
         this.livesText = this.game.add.text(16, 16, 'Lives : ', {fontSize: '32px', fill: '#ffffff'});
         this.scoreText = this.game.add.text(this.game.world.width - 250, 16, 'Score: ' + window.game.global.score, { fontSize: '32px', fill: '#ffffff' });
+        this.levelText = this.game.add.text(250, 16, 'Level : 2', {fontSize: '32px', fill: '#ffffff'});
 
         this.livesText.fixedToCamera = true;
         this.scoreText.fixedToCamera = true;
+        this.levelText.fixedToCamera = true;
 
         this.stateText = this.game.add.text(this.game.world.centerX, this.game.world.centerY, ' ', { font: '84px Arial', fill: '#fff' });
 
