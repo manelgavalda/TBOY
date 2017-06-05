@@ -14,7 +14,7 @@ export default class extends Phaser.State {
           align: 'center'
       })
 
-      var score = this.add.text(this.world.centerX -300, this.world.centerY, 'Score: '+ window.score, {
+      var score = this.add.text(this.world.centerX -300, this.world.centerY, 'Score: '+ window.game.global.score, {
           font: '100px Revalia',
           fill: '#dddddd',
           align: 'center'
